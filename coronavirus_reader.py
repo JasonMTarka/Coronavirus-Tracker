@@ -1,5 +1,6 @@
 from csv import reader
 from matplotlib import pyplot as plt
+import numpy as np
 import re
 
 def coronavirus_data_reader():
@@ -19,11 +20,22 @@ def graph(data):
 
 	for row in data[1:]:
 		x_dates.append(row[0])
-		y_cases_dayton.append(int(row[1]))
-		y_cases_tokyo.append(int(row[2]))
+		if row[1] != "NULL":
+			y_cases_dayton.append(int(row[1]))
+		else:
+			y_cases_dayton.append(0)
+		if row[2] != "NULL":
+			y_cases_tokyo.append(int(row[2]))
+		else:
+			y_cases_tokyo.append(0)	
 
-	plt.plot(x_dates, y_cases_dayton, marker="o", label="Dayton")
+	x_indexes = np.arange(len(x_dates)) # Creates a numpy array which contains the indexes of the dates, using the indexes to display the data instead of the data itself
+
+	plt.plot(x_dates, y_cases_dayton, marker="o", label="Dayton") 
 	plt.plot(x_dates, y_cases_tokyo, marker="o", label="Tokyo")
+
+	plt.xticks(ticks=x_indexes, labels=x_dates) # Sets ticks equal to indexes
+	plt.locator_params(axis="x", nbins=5) # Sets the amount of x labels which display
 
 	plt.legend()
 	plt.tight_layout()
