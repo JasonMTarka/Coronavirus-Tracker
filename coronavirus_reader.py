@@ -13,13 +13,15 @@ class COVID19_Reader:
 			self.data = list(csv_reader)
 			return self.data
 	
-	def print_cases(self, data):
-		todays_data = data[len(data)-1] #data[len(data)-2]
+	def print_cases(self):
+		todays_data = self.data[len(self.data)-1] #self.data[len(self.data)-2]
 		# The above commented out code allows you to see yesterday's data instead.
 
 		# Below is a regex which will match the day, month, and year that the data was collected.
-		date_analysis = re.compile(r"(?P<year>\d{4})-(?P<month>\d{2})-(?P<day>\d\d?)")
+		date_analysis = re.compile(r"(?P<day>\d{2})-(?P<month>\d{2})-(?P<year>\d\d?)")
+		print(todays_data[0])
 		match = date_analysis.search(todays_data[0])
+
 		MONTHS = {
 			"01" : "January",
 			"02" : "February",
@@ -38,14 +40,14 @@ class COVID19_Reader:
 		# Below converts the regex groups into variables so that they can be included in the final f-string.
 		month = MONTHS[match.group("month")]
 		day = match.group("day")
-		year = match.group("year")
+		year = "20" + match.group("year")
 
 		tokyo_new_cases = todays_data[2]
 		dayton_new_cases = todays_data[1]
 		print(f"The number of new cases in Tokyo on {month} {day}, {year} was {tokyo_new_cases}.")
 		print(f"The number of new cases in Dayton was {dayton_new_cases}.")
 
-	def graph(self, data):
+	def graph(self):
 		plt.style.use("ggplot")
 		plt.xlabel("Dates") 
 		plt.ylabel("Number of New Cases") 
@@ -55,7 +57,7 @@ class COVID19_Reader:
 		y_cases_dayton = []
 		y_cases_tokyo = []
 
-		for row in data[1:]:
+		for row in self.data[1:]:
 			x_dates.append(row[0])
 			if row[1] != "NULL":
 				y_cases_dayton.append(int(row[1]))
@@ -80,7 +82,7 @@ class COVID19_Reader:
 
 if __name__ == "__main__":	
 	cvd_reader = COVID19_Reader()
-	data = cvd_reader.data_reader()
+	cvd_reader.data_reader()
 
-	cvd_reader.print_cases(data)
-	cvd_reader.graph(data)
+	cvd_reader.print_cases()
+	cvd_reader.graph()
