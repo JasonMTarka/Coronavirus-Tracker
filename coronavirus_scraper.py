@@ -1,7 +1,8 @@
 import requests
+
 from datetime import date
 from bs4 import BeautifulSoup
-from csv import writer, reader
+from csv import writer
 from time import sleep
 
 # I live in Tokyo and my family lives in Dayton, Ohio in the USA, so sometimes
@@ -18,7 +19,8 @@ class COVID19_Scraper:
     def __init__(self):
         self.date = date.today()
 
-    def get_dayton_stats(self):
+    @staticmethod
+    def get_dayton_stats():
         # Dayton information is taken from two separate pages on the New York Times site, so this function finds
         # the case number for each county and strips unnecessary information from each
         def nytimes_scraper(url):
@@ -37,7 +39,8 @@ class COVID19_Scraper:
             return "NULL"
         return dayton_total
 
-    def get_tokyo_stats(self):
+    @staticmethod
+    def get_tokyo_stats():
         url = "https://stopcovid19.metro.tokyo.lg.jp/en"
         tokyo_response = requests.get(url)
         tokyo_soup = BeautifulSoup(tokyo_response.text, "html.parser")
@@ -48,19 +51,24 @@ class COVID19_Scraper:
             return "NULL"
         return tokyo_total
 
-    def package_data(self, dayton_total, tokyo_total):
+    @staticmethod
+    def package_data(dayton_total, tokyo_total):
         today = date.today().strftime("%d-%m-%y")
         return {"Date": today, "Dayton": dayton_total, "Tokyo": tokyo_total}
 
     # Records the number of new cases in Dayton and Tokyo into a csv file called coronavirus_data.csv
-    def write_to_csv(self, date, new_dayton_cases, new_tokyo_cases):
+    @staticmethod
+    def write_to_csv(date, new_dayton_cases, new_tokyo_cases):
         with open("coronavirus_data.csv", "a", newline="") as file:
             csv_writer = writer(file)
             csv_writer.writerow([date, new_dayton_cases, new_tokyo_cases])
 
+    @staticmethod
+    def main():
+        scraper = COVID19_Scraper()
+        todays_values = scraper.package_data(scraper.get_dayton_stats(), scraper.get_tokyo_stats())
+        scraper.write_to_csv(todays_values["Date"], todays_values["Dayton"], todays_values["Tokyo"])
+
 
 if __name__ == "__main__":
-
-    scraper = COVID19_Scraper()
-    todays_values = scraper.package_data(scraper.get_dayton_stats(), scraper.get_tokyo_stats())
-    scraper.write_to_csv(todays_values["Date"], todays_values["Dayton"], todays_values["Tokyo"])
+    COVID19_Scraper.main()

@@ -1,7 +1,8 @@
-from csv import reader
-from matplotlib import pyplot as plt
 import numpy as np
 import re
+
+from csv import reader
+from matplotlib import pyplot as plt
 
 
 class COVID19_Reader:
@@ -20,7 +21,6 @@ class COVID19_Reader:
 
         # Below is a regex which will match the day, month, and year that the data was collected.
         date_analysis = re.compile(r"(?P<day>\d{2})-(?P<month>\d{2})-(?P<year>\d\d?)")
-        print(todays_data[0])
         match = date_analysis.search(todays_data[0])
 
         MONTHS = {
@@ -81,10 +81,14 @@ class COVID19_Reader:
         plt.tight_layout()
         plt.show()
 
+    @staticmethod
+    def main():
+        cvd_reader = COVID19_Reader()
+        cvd_reader.data_reader()
+
+        cvd_reader.print_cases()
+        cvd_reader.graph()
+
 
 if __name__ == "__main__":
-    cvd_reader = COVID19_Reader()
-    cvd_reader.data_reader()
-
-    cvd_reader.print_cases()
-    cvd_reader.graph()
+    COVID19_Reader.main()
