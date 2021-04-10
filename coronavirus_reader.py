@@ -81,14 +81,14 @@ class COVID19_Reader:
         plt.tight_layout()
         plt.show()
 
-    @staticmethod
-    def main():
-        cvd_reader = COVID19_Reader()
-        cvd_reader.data_reader()
 
-        cvd_reader.print_cases()
-        cvd_reader.graph()
+def main():
+    cvd_reader = COVID19_Reader()
+    cvd_reader.data_reader()
+
+    cvd_reader.print_cases()
+    cvd_reader.graph()
 
 
 if __name__ == "__main__":
-    COVID19_Reader.main()
+    main()

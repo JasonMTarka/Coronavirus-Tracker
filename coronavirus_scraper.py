@@ -56,9 +56,9 @@ class COVID19_Scraper:
         today = date.today().strftime("%d-%m-%y")
         return {"Date": today, "Dayton": dayton_total, "Tokyo": tokyo_total}
 
-    # Records the number of new cases in Dayton and Tokyo into a csv file called coronavirus_data.csv
     @staticmethod
     def write_to_csv(date, new_dayton_cases, new_tokyo_cases):
+        # Records the number of new cases in Dayton and Tokyo into a csv file called coronavirus_data.csv
         with open("coronavirus_data.csv", "a", newline="") as file:
             csv_writer = writer(file)
             csv_writer.writerow([date, new_dayton_cases, new_tokyo_cases])
