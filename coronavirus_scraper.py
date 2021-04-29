@@ -45,7 +45,7 @@ class COVID19_Scraper:
         tokyo_response = requests.get(url)
         tokyo_soup = BeautifulSoup(tokyo_response.text, "html.parser")
 
-        tokyo_total = int(tokyo_soup.find(class_="InfectionMedicalcareprovisionStatus-description").span.get_text().replace("人", ""))
+        tokyo_total = int(tokyo_soup.find(class_="InfectionMedicalcareprovisionStatus-description").span.get_text().replace("人", "").replace(",", ""))
 
         if tokyo_total == 0:
             return "NULL"
