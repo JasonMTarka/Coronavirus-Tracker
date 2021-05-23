@@ -2,9 +2,7 @@ import numpy as np
 import re
 
 from csv import reader
-from matplotlib import pyplot as plt  # type: ignore
-# If above is not type: ignore, mypy returns:
-# error: Skipping analyzing 'matplotlib': found module but no type hints or library stubs
+from matplotlib import pyplot as plt
 
 
 class COVID19_Reader:

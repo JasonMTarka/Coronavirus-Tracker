@@ -2,7 +2,7 @@ import requests
 from typing import Union
 
 from datetime import date
-from bs4 import BeautifulSoup  # type: ignore
+from bs4 import BeautifulSoup
 from csv import writer
 from time import sleep
 
