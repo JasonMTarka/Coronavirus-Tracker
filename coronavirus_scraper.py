@@ -1,7 +1,8 @@
 import requests
+from typing import Union
 
 from datetime import date
-from bs4 import BeautifulSoup
+from bs4 import BeautifulSoup  # type: ignore
 from csv import writer
 from time import sleep
 
@@ -15,12 +16,17 @@ from time import sleep
 # For my purposes I define Dayton as two counties; Montgomery and Greene.
 
 
+# str_or_int variable is for type checking; most values will be ints except when the scraper doesn't find any values,
+# at which point it will return the string 'NULL'
+str_or_int = Union[str, int]
+
+
 class COVID19_Scraper:
-    def __init__(self):
+    def __init__(self) -> None:
         self.date = date.today()
 
     @staticmethod
-    def get_dayton_stats():
+    def get_dayton_stats() -> str_or_int:
         # Dayton information is taken from two separate pages on the New York Times site, so this function finds
         # the case number for each county and strips unnecessary information from each
         def nytimes_scraper(url):
@@ -40,7 +46,7 @@ class COVID19_Scraper:
         return dayton_total
 
     @staticmethod
-    def get_tokyo_stats():
+    def get_tokyo_stats() -> str_or_int:
         url = "https://stopcovid19.metro.tokyo.lg.jp/en"
         tokyo_response = requests.get(url)
         tokyo_soup = BeautifulSoup(tokyo_response.text, "html.parser")
@@ -52,19 +58,19 @@ class COVID19_Scraper:
         return tokyo_total
 
     @staticmethod
-    def package_data(dayton_total, tokyo_total):
+    def package_data(dayton_total: str_or_int, tokyo_total: str_or_int) -> dict:
         today = date.today().strftime("%d-%m-%y")
         return {"Date": today, "Dayton": dayton_total, "Tokyo": tokyo_total}
 
     @staticmethod
-    def write_to_csv(date, new_dayton_cases, new_tokyo_cases):
+    def write_to_csv(date: str, new_dayton_cases: str_or_int, new_tokyo_cases: str_or_int) -> None:
         # Records the number of new cases in Dayton and Tokyo into a csv file called coronavirus_data.csv
         with open("coronavirus_data.csv", "a", newline="") as file:
             csv_writer = writer(file)
             csv_writer.writerow([date, new_dayton_cases, new_tokyo_cases])
 
     @staticmethod
-    def main():
+    def main() -> None:
         scraper = COVID19_Scraper()
         todays_values = scraper.package_data(scraper.get_dayton_stats(), scraper.get_tokyo_stats())
         scraper.write_to_csv(todays_values["Date"], todays_values["Dayton"], todays_values["Tokyo"])
