@@ -1,4 +1,6 @@
 import unittest
+import requests
+from bs4 import BeautifulSoup
 
 from coronavirus_scraper import COVID19_Scraper
 
@@ -13,6 +15,12 @@ class TestScraper(unittest.TestCase):
         self.assertIsNotNone(self.todays_values.get("Date"))
         self.assertIsNotNone(self.todays_values.get("Dayton"))
         self.assertIsNotNone(self.todays_values.get("Tokyo"))
+
+    def test_tokyo(self):
+        url = "https://stopcovid19.metro.tokyo.lg.jp/en"
+        tokyo_response = requests.get(url)
+        tokyo_soup = BeautifulSoup(tokyo_response.text, "html.parser")
+        self.assertIsNotNone(tokyo_soup.find(class_="InfectionMedicalCareProvisionStatus-description"))
 
 
 if __name__ == "__main__":
