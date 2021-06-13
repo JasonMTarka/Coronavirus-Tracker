@@ -1,2 +1,4 @@
 project_env/
 __pycache__/
+coronavirus_scraper_logs.log
+coronavirus_data.csv
