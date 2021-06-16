@@ -20,10 +20,12 @@ class COVID19_Reader:
         # The above commented out code allows you to see yesterday's data instead.
 
         # Below is a regex which will match the day, month, and year that the data was collected.
-        date_analysis: re.Pattern = re.compile(r"(?P<day>\d{2})-(?P<month>\d{2})-(?P<year>\d\d?)")
-        match: re.Match = date_analysis.search(todays_data[0])  # type: ignore
-        # If above is not type: ignore, mypy returns:
+        regex = r"(?P<day>\d{2})-(?P<month>\d{2})-(?P<year>\d\d?)"
+        date_analysis: re.Pattern[str] = re.compile(regex)
+        match: re.Match[str] = date_analysis.search(todays_data[0])  # type: ignore
+        # If above is not type: ignore'd, mypy returns:
         # error: Incompatible types in assignment (expression has type "Optional[Match[Any]]", variable has type "Match[Any]")
+        # expected solution of 'assert date_analysis is not None' does not change the above error
 
         MONTHS = {
             "01": "January",
