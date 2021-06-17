@@ -6,16 +6,24 @@ from matplotlib import pyplot as plt
 
 
 class COVID19_Reader:
+    """Class which takes data from coronavirus_data.csv and prints to terminal and/or displays a Matplotlib graph."""
+
     def __init__(self) -> None:
+        """Initialize self.data as an empty list."""
+
         self.data: list = []
 
     def data_reader(self) -> list:
+        """Read data from coronavirus_data.csv and set self.data to it."""
+
         with open("coronavirus_data.csv") as file:
             csv_reader = reader(file)
             self.data = list(csv_reader)
             return self.data
 
     def print_cases(self) -> None:
+        """Print self.data information to the console."""
+
         todays_data = self.data[len(self.data) - 1]  # self.data[len(self.data)-2]
         # The above commented out code allows you to see yesterday's data instead.
 
@@ -53,6 +61,8 @@ class COVID19_Reader:
         print(f"The number of new cases in Dayton was {dayton_new_cases}.")
 
     def graph(self) -> None:
+        """Graph data stored in self.data."""
+
         plt.style.use("ggplot")
         plt.xlabel("Dates")
         plt.ylabel("Number of New Cases")
@@ -87,6 +97,8 @@ class COVID19_Reader:
 
 
 def main() -> None:
+    """Initialize COVID19_Reader() object and call print and graph methods."""
+
     cvd_reader = COVID19_Reader()
     cvd_reader.data_reader()
 

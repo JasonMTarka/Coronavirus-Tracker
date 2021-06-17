@@ -7,27 +7,31 @@ from bs4 import BeautifulSoup
 from csv import writer
 from time import sleep
 
-# I live in Tokyo and my family lives in Dayton, Ohio in the USA, so sometimes
-# it's hard to keep track of the coronavirus situation back home.  I wrote this
-# script to keep a record of coronavirus cases both here in Tokyo and in Dayton.
+"""
+I live in Tokyo and my family lives in Dayton, Ohio in the USA, so sometimes
+it's hard to keep track of the coronavirus situation back home.  I wrote this
+script to keep a record of coronavirus cases both here in Tokyo and in Dayton.
 
-# I automate this script to run automatically each day with Task Scheduler on Windows.
-# For viewing the data, run the separate coronavirus_reader.py script.
+I automate this script to run automatically each day with Task Scheduler on Windows.
+For viewing the data, run the separate coronavirus_reader.py script.
 
-# For my purposes I define Dayton as two counties; Montgomery and Greene.
+For my purposes I define Dayton as two counties; Montgomery and Greene.
 
-
-# STR_OR_INT variable is for type checking; most values will be ints except when the scraper doesn't find any values,
-# at which point it will return the string 'NULL'
+STR_OR_INT variable is for type checking; most values will be ints except when the scraper doesn't find any values,
+at which point it will return the string 'NULL'
+"""
 
 
 class COVID19_Scraper:
+    """Object for scraping coronavirus data."""
 
     STR_OR_INT = Union[str, int]
 
     def __init__(self) -> None:
+        """Set today's data and create logger object."""
 
         def logger_setup() -> logging.Logger:
+            """Instantiate and format logger object."""
 
             logger = logging.getLogger(__name__)
             logger.setLevel(logging.INFO)
@@ -48,13 +52,17 @@ class COVID19_Scraper:
         self.date = date.today()
 
     def main(self) -> None:
+        """Primary method to get today's data and then write it to coronavirus_data.csv."""
+
         todays_values = self.package_data(self.get_dayton_stats(), self.get_tokyo_stats())
         self.write_to_csv(todays_values["Date"], todays_values["Dayton"], todays_values["Tokyo"])
 
     def get_dayton_stats(self) -> STR_OR_INT:
-        # Dayton information is taken from two separate pages on the New York Times site, so this function finds
-        # the case number for each county and strips unnecessary information from each
+        """Finds the case number for each county comprising Dayton and strips unnecessary information from each."""
+
         def nytimes_scraper(url):
+            """Get data from New York Times url."""
+
             self.logger.info(f"Beginning to scrape New York Times at {url}...")
             ohio_response = requests.get(url)
             ohio_soup = BeautifulSoup(ohio_response.text, "html.parser")
@@ -67,14 +75,16 @@ class COVID19_Scraper:
 
         dayton_total = new_greene_cases + new_montgomery_cases
 
-        # If the totals have not yet been updated, this will return the string "NULL"
         if dayton_total == 0:
             self.logger.warning("No new cases reported.  Returning 'NULL'.")
-            return "NULL"
+            return "NULL"  # Return the string "NULL" if today's cases are not yet updated.
+
         self.logger.info(f"Dayton totals calculated: {dayton_total}")
         return dayton_total
 
     def get_tokyo_stats(self) -> STR_OR_INT:
+        """Scrape Tokyo data from official website."""
+
         self.logger.info("Beginning to scrape Tokyo statistics...")
         url = "https://stopcovid19.metro.tokyo.lg.jp/en"
         tokyo_response = requests.get(url)
@@ -89,11 +99,14 @@ class COVID19_Scraper:
         return tokyo_total
 
     def package_data(self, dayton_total: STR_OR_INT, tokyo_total: STR_OR_INT) -> dict:
+        """Format data into readable format."""
+
         today = date.today().strftime("%d-%m-%y")
         return {"Date": today, "Dayton": dayton_total, "Tokyo": tokyo_total}
 
     def write_to_csv(self, date: str, new_dayton_cases: STR_OR_INT, new_tokyo_cases: STR_OR_INT) -> None:
-        # Records the number of new cases in Dayton and Tokyo into a csv file called coronavirus_data.csv
+        """Record number of new cases in Dayton and Tokyo into coronavirus_data.csv."""
+
         self.logger.info(f"Recording new data to CSV...")
         with open("coronavirus_data.csv", "a", newline="") as file:
             csv_writer = writer(file)
@@ -101,6 +114,8 @@ class COVID19_Scraper:
 
 
 def main():
+    """Initialize COVID19_Scraper object and begin main loop."""
+
     scraper = COVID19_Scraper()
     scraper.main()
 
