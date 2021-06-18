@@ -12,13 +12,14 @@ I live in Tokyo and my family lives in Dayton, Ohio in the USA, so sometimes
 it's hard to keep track of the coronavirus situation back home.  I wrote this
 script to keep a record of coronavirus cases both here in Tokyo and in Dayton.
 
-I automate this script to run automatically each day with Task Scheduler on Windows.
+I automate this script to run automatically each day with Task Scheduler.
 For viewing the data, run the separate coronavirus_reader.py script.
 
 For my purposes I define Dayton as two counties; Montgomery and Greene.
 
-STR_OR_INT variable is for type checking; most values will be ints except when the scraper doesn't find any values,
-at which point it will return the string 'NULL'
+STR_OR_INT variable is for type checking; most values will be ints except when
+ the scraper doesn't find any values, at which point it will return
+ the string 'NULL'
 """
 
 
@@ -36,7 +37,8 @@ class COVID19_Scraper:
             logger = logging.getLogger(__name__)
             logger.setLevel(logging.INFO)
 
-            formatter = logging.Formatter('%(asctime)s:%(levelname)s:%(name)s:%(message)s')
+            formatter = logging.Formatter(
+                '%(asctime)s:%(levelname)s:%(name)s:%(message)s')
 
             file_handler = logging.FileHandler('coronavirus_scraper_logs.log')
             file_handler.setFormatter(formatter)
@@ -52,13 +54,19 @@ class COVID19_Scraper:
         self.date = date.today()
 
     def main(self) -> None:
-        """Primary method to get today's data and then write it to coronavirus_data.csv."""
+        """Primary method to get data and then write it to csv."""
 
-        todays_values = self.package_data(self.get_dayton_stats(), self.get_tokyo_stats())
-        self.write_to_csv(todays_values["Date"], todays_values["Dayton"], todays_values["Tokyo"])
+        todays_values = self.package_data(
+            self.get_dayton_stats(),
+            self.get_tokyo_stats())
+        self.write_to_csv(
+            todays_values["Date"],
+            todays_values["Dayton"],
+            todays_values["Tokyo"])
 
     def get_dayton_stats(self) -> STR_OR_INT:
-        """Finds the case number for each county comprising Dayton and strips unnecessary information from each."""
+        """Finds the case number for each county comprising Dayton and strips
+        unnecessary information from each."""
 
         def nytimes_scraper(url):
             """Get data from New York Times url."""
@@ -67,17 +75,25 @@ class COVID19_Scraper:
             ohio_response = requests.get(url)
             ohio_soup = BeautifulSoup(ohio_response.text, "html.parser")
             self.logger.info("New York Times scraping completed!")
-            return int(ohio_soup.find(id="cases").find_all("strong")[1].get_text().replace(" cases per day", ""))
+            return int(ohio_soup.find(id="cases").find_all(
+                "strong")[1].get_text().replace(" cases per day", ""))
 
-        new_greene_cases = nytimes_scraper("https://www.nytimes.com/interactive/2021/us/greene-ohio-covid-cases.html")
+        new_greene_cases = nytimes_scraper(
+            "https://www.nytimes.com/interactive/2021"
+            "/us/greene-ohio-covid-cases.html")
+
         sleep(1)
-        new_montgomery_cases = nytimes_scraper("https://www.nytimes.com/interactive/2021/us/montgomery-ohio-covid-cases.html")
+
+        new_montgomery_cases = nytimes_scraper(
+            "https://www.nytimes.com/interactive/2021/"
+            "us/montgomery-ohio-covid-cases.html")
 
         dayton_total = new_greene_cases + new_montgomery_cases
 
         if dayton_total == 0:
             self.logger.warning("No new cases reported.  Returning 'NULL'.")
-            return "NULL"  # Return the string "NULL" if today's cases are not yet updated.
+            return "NULL"
+            # Return the string "NULL" if today's cases are not yet updated.
 
         self.logger.info(f"Dayton totals calculated: {dayton_total}")
         return dayton_total
@@ -89,7 +105,11 @@ class COVID19_Scraper:
         url = "https://stopcovid19.metro.tokyo.lg.jp/en"
         tokyo_response = requests.get(url)
         tokyo_soup = BeautifulSoup(tokyo_response.text, "html.parser")
-        tokyo_total = int(tokyo_soup.find(class_="InfectionMedicalCareProvisionStatus-description").span.get_text().replace("人", "").replace(",", ""))
+
+        tokyo_total = int(tokyo_soup.find(
+            class_="InfectionMedicalCareProvisionStatus-description"
+        ).span.get_text().replace("人", "").replace(",", ""))
+
         self.logger.info("Tokyo scraping completed!")
 
         if tokyo_total == 0:
@@ -98,14 +118,19 @@ class COVID19_Scraper:
         self.logger.info(f"Tokyo totals calculated: {tokyo_total}")
         return tokyo_total
 
-    def package_data(self, dayton_total: STR_OR_INT, tokyo_total: STR_OR_INT) -> dict:
+    def package_data(self,
+                     dayton_total: STR_OR_INT,
+                     tokyo_total: STR_OR_INT) -> dict:
         """Format data into readable format."""
 
         today = date.today().strftime("%d-%m-%y")
         return {"Date": today, "Dayton": dayton_total, "Tokyo": tokyo_total}
 
-    def write_to_csv(self, date: str, new_dayton_cases: STR_OR_INT, new_tokyo_cases: STR_OR_INT) -> None:
-        """Record number of new cases in Dayton and Tokyo into coronavirus_data.csv."""
+    def write_to_csv(self,
+                     date: str,
+                     new_dayton_cases: STR_OR_INT,
+                     new_tokyo_cases: STR_OR_INT) -> None:
+        """Record number of new cases in Dayton and Tokyo to csv."""
 
         self.logger.info(f"Recording new data to CSV...")
         with open("coronavirus_data.csv", "a", newline="") as file:

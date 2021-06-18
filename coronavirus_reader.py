@@ -6,7 +6,7 @@ from matplotlib import pyplot as plt
 
 
 class COVID19_Reader:
-    """Class which takes data from coronavirus_data.csv and prints to terminal and/or displays a Matplotlib graph."""
+    """Class which prints to terminal and/or displays a Matplotlib graph."""
 
     def __init__(self) -> None:
         """Initialize self.data as an empty list."""
@@ -24,16 +24,23 @@ class COVID19_Reader:
     def print_cases(self) -> None:
         """Print self.data information to the console."""
 
-        todays_data = self.data[len(self.data) - 1]  # self.data[len(self.data)-2]
-        # The above commented out code allows you to see yesterday's data instead.
+        todays_data = self.data[len(self.data) - 1]
+        # self.data[len(self.data)-2]
+        # The above commented out code allows access to yesterday's data.
 
-        # Below is a regex which will match the day, month, and year that the data was collected.
+        # Below is a regex which will match the day, month, and year.
         regex = r"(?P<day>\d{2})-(?P<month>\d{2})-(?P<year>\d\d?)"
         date_analysis: re.Pattern[str] = re.compile(regex)
-        match: re.Match[str] = date_analysis.search(todays_data[0])  # type: ignore
-        # If above is not type: ignore'd, mypy returns:
-        # error: Incompatible types in assignment (expression has type "Optional[Match[Any]]", variable has type "Match[Any]")
-        # expected solution of 'assert date_analysis is not None' does not change the above error
+        match: re.Match[str] = (
+            date_analysis.search(todays_data[0]))  # type: ignore
+        """
+        If above is not type: ignore'd, mypy returns:
+        error: Incompatible types in assignment
+        (expression has type "Optional[Match[Any]]",
+        variable has type "Match[Any]")
+        expected solution of 'assert date_analysis is not None'
+        does not change the above error
+        """
 
         MONTHS = {
             "01": "January",
@@ -50,15 +57,16 @@ class COVID19_Reader:
             "12": "December"
         }
 
-        # Below converts the regex groups into variables so that they can be included in the final f-string.
         month = MONTHS[match.group("month")]
         day = match.group("day")
         year = "20" + match.group("year")
 
         tokyo_new_cases = todays_data[2]
         dayton_new_cases = todays_data[1]
-        print(f"The number of new cases in Tokyo on {month} {day}, {year} was {tokyo_new_cases}.")
-        print(f"The number of new cases in Dayton was {dayton_new_cases}.")
+        print(
+            f"The number of new cases in Tokyo on {month} {day}, {year}"
+            f" was {tokyo_new_cases}.\n"
+            f"The number of new cases in Dayton was {dayton_new_cases}.")
 
     def graph(self) -> None:
         """Graph data stored in self.data."""
@@ -83,13 +91,18 @@ class COVID19_Reader:
             else:
                 y_cases_tokyo.append(0)
 
-        x_indexes = np.arange(len(x_dates))  # Creates a numpy array which contains the indexes of the dates, using the indexes to display the data instead of the data itself
+        x_indexes = np.arange(len(x_dates))
+        # Creates a numpy array which contains the indexes of the dates,
+        # using the indexes to display the data instead of the data itself
 
         plt.plot(x_dates, y_cases_dayton, marker="o", label="Dayton")
         plt.plot(x_dates, y_cases_tokyo, marker="o", label="Tokyo")
 
-        plt.xticks(ticks=x_indexes, labels=x_dates)  # Sets ticks equal to indexes
-        plt.locator_params(axis="x", nbins=5)  # Sets the amount of x labels which display
+        plt.xticks(ticks=x_indexes, labels=x_dates)
+        # Sets ticks equal to indexes
+
+        plt.locator_params(axis="x", nbins=5)
+        # Sets the amount of x labels which display
 
         plt.legend()
         plt.tight_layout()
