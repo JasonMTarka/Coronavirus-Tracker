@@ -13,13 +13,12 @@ class COVID19_Reader:
 
         self.data: list = []
 
-    def data_reader(self) -> list:
+    def data_reader(self) -> None:
         """Read data from coronavirus_data.csv and set self.data to it."""
 
         with open("coronavirus_data.csv") as file:
             csv_reader = reader(file)
             self.data = list(csv_reader)
-            return self.data
 
     def print_cases(self) -> None:
         """Print self.data information to the console."""

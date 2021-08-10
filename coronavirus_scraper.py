@@ -1,5 +1,6 @@
 import requests
 import logging
+import sys
 
 from typing import Union
 from datetime import date
@@ -79,14 +80,12 @@ class COVID19_Scraper:
                 "strong")[1].get_text().replace(" cases per day", ""))
 
         new_greene_cases = nytimes_scraper(
-            "https://www.nytimes.com/interactive/2021"
-            "/us/greene-ohio-covid-cases.html")
+            "https://www.nytimes.com/interactive/2021/us/greene-ohio-covid-cases.html")
 
         sleep(1)
 
         new_montgomery_cases = nytimes_scraper(
-            "https://www.nytimes.com/interactive/2021/"
-            "us/montgomery-ohio-covid-cases.html")
+            "https://www.nytimes.com/interactive/2021/us/montgomery-ohio-covid-cases.html")
 
         dayton_total = new_greene_cases + new_montgomery_cases
 
@@ -106,9 +105,17 @@ class COVID19_Scraper:
         tokyo_response = requests.get(url)
         tokyo_soup = BeautifulSoup(tokyo_response.text, "html.parser")
 
-        tokyo_total = int(tokyo_soup.find(
-            class_="InfectionMedicalCareProvisionStatus-description"
-        ).span.get_text().replace("人", "").replace(",", ""))
+        try:
+            tokyo_total = int(tokyo_soup.find(
+                class_="InfectionMedicalCareProvisionStatus-description")
+                .em.contents[0].replace(" ", "").replace("\n", "").replace(",", ""))
+            print(tokyo_total)
+        except ValueError as e:
+            self.logger.error(f"Value Error: {e}")
+            sys.exit()
+        except Exception as e:
+            self.logger.error(f"Exception: {e}")
+            sys.exit()
 
         self.logger.info("Tokyo scraping completed!")
 
