@@ -28,7 +28,7 @@ class COVID19_Reader:
         # The above commented out code allows access to yesterday's data.
 
         # Below is a regex which will match the day, month, and year.
-        regex = r"(?P<day>\d{2})-(?P<month>\d{2})-(?P<year>\d\d?)"
+        regex = r"(?P<year>\d{2})-(?P<month>\d{2})-(?P<day>\d\d?)"
         date_analysis: re.Pattern[str] = re.compile(regex)
         match: re.Match[str] = (
             date_analysis.search(todays_data[0]))  # type: ignore
@@ -114,7 +114,7 @@ def main() -> None:
     cvd_reader = COVID19_Reader()
     cvd_reader.data_reader()
 
-    cvd_reader.print_cases()
+    # cvd_reader.print_cases()
     cvd_reader.graph()
 
 

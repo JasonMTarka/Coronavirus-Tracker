@@ -108,8 +108,10 @@ class COVID19_Scraper:
         try:
             tokyo_total = int(tokyo_soup.find(
                 class_="InfectionMedicalCareProvisionStatus-description")
-                .em.contents[0].replace(" ", "").replace("\n", "").replace(",", ""))
-            print(tokyo_total)
+                .em.contents[0]
+                .replace(" ", "")
+                .replace("\n", "")
+                .replace(",", ""))
         except ValueError as e:
             self.logger.error(f"Value Error: {e}")
             sys.exit()
@@ -130,7 +132,7 @@ class COVID19_Scraper:
                      tokyo_total: STR_OR_INT) -> dict:
         """Format data into readable format."""
 
-        today = date.today().strftime("%d-%m-%y")
+        today = date.today().strftime("20%y/%m/%d")
         return {"Date": today, "Dayton": dayton_total, "Tokyo": tokyo_total}
 
     def write_to_csv(self,
@@ -140,9 +142,12 @@ class COVID19_Scraper:
         """Record number of new cases in Dayton and Tokyo to csv."""
 
         self.logger.info(f"Recording new data to CSV...")
+
         with open("coronavirus_data.csv", "a", newline="") as file:
+            new_row = [date, new_dayton_cases, new_tokyo_cases]
+            self.logger.info(f"New row: {new_row}")
             csv_writer = writer(file)
-            csv_writer.writerow([date, new_dayton_cases, new_tokyo_cases])
+            csv_writer.writerow(new_row)
 
 
 def main():
