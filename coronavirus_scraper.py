@@ -2,7 +2,6 @@ import requests
 import logging
 import sys
 
-from typing import Union
 from datetime import date
 from bs4 import BeautifulSoup
 from csv import writer
@@ -27,7 +26,7 @@ STR_OR_INT variable is for type checking; most values will be ints except when
 class COVID19_Scraper:
     """Object for scraping coronavirus data."""
 
-    STR_OR_INT = Union[str, int]
+    STR_OR_INT = str | int
 
     def __init__(self) -> None:
         """Set today's data and create logger object."""
@@ -39,9 +38,10 @@ class COVID19_Scraper:
             logger.setLevel(logging.INFO)
 
             formatter = logging.Formatter(
-                '%(asctime)s:%(levelname)s:%(name)s:%(message)s')
+                "%(asctime)s:%(levelname)s:%(name)s:%(message)s"
+            )
 
-            file_handler = logging.FileHandler('coronavirus_scraper_logs.log')
+            file_handler = logging.FileHandler("coronavirus_scraper_logs.log")
             file_handler.setFormatter(formatter)
             logger.addHandler(file_handler)
 
@@ -58,12 +58,13 @@ class COVID19_Scraper:
         """Primary method to get data and then write it to csv."""
 
         todays_values = self.package_data(
-            self.get_dayton_stats(),
-            self.get_tokyo_stats())
+            self.get_dayton_stats(), self.get_tokyo_stats()
+        )
         self.write_to_csv(
             todays_values["Date"],
             todays_values["Dayton"],
-            todays_values["Tokyo"])
+            todays_values["Tokyo"],
+        )
 
     def get_dayton_stats(self) -> STR_OR_INT:
         """Finds the case number for each county comprising Dayton and strips
@@ -76,16 +77,22 @@ class COVID19_Scraper:
             ohio_response = requests.get(url)
             ohio_soup = BeautifulSoup(ohio_response.text, "html.parser")
             self.logger.info("New York Times scraping completed!")
-            return int(ohio_soup.find(id="cases").find_all(
-                "strong")[1].get_text().replace(" cases per day", ""))
+            return int(
+                ohio_soup.find(id="cases")
+                .find_all("strong")[1]
+                .get_text()
+                .replace(" cases per day", "")
+            )
 
         new_greene_cases = nytimes_scraper(
-            "https://www.nytimes.com/interactive/2021/us/greene-ohio-covid-cases.html")
+            "https://www.nytimes.com/interactive/2021/us/greene-ohio-covid-cases.html"
+        )
 
         sleep(1)
 
         new_montgomery_cases = nytimes_scraper(
-            "https://www.nytimes.com/interactive/2021/us/montgomery-ohio-covid-cases.html")
+            "https://www.nytimes.com/interactive/2021/us/montgomery-ohio-covid-cases.html"
+        )
 
         dayton_total = new_greene_cases + new_montgomery_cases
 
@@ -106,12 +113,15 @@ class COVID19_Scraper:
         tokyo_soup = BeautifulSoup(tokyo_response.text, "html.parser")
 
         try:
-            tokyo_total = int(tokyo_soup.find(
-                class_="InfectionMedicalCareProvisionStatus-description")
+            tokyo_total = int(
+                tokyo_soup.find(
+                    class_="InfectionMedicalCareProvisionStatus-description"
+                )
                 .em.contents[0]
                 .replace(" ", "")
                 .replace("\n", "")
-                .replace(",", ""))
+                .replace(",", "")
+            )
         except ValueError as e:
             self.logger.error(f"Value Error: {e}")
             sys.exit()
@@ -127,18 +137,20 @@ class COVID19_Scraper:
         self.logger.info(f"Tokyo totals calculated: {tokyo_total}")
         return tokyo_total
 
-    def package_data(self,
-                     dayton_total: STR_OR_INT,
-                     tokyo_total: STR_OR_INT) -> dict:
+    def package_data(
+        self, dayton_total: STR_OR_INT, tokyo_total: STR_OR_INT
+    ) -> dict:
         """Format data into readable format."""
 
         today = date.today().strftime("20%y/%m/%d")
         return {"Date": today, "Dayton": dayton_total, "Tokyo": tokyo_total}
 
-    def write_to_csv(self,
-                     date: str,
-                     new_dayton_cases: STR_OR_INT,
-                     new_tokyo_cases: STR_OR_INT) -> None:
+    def write_to_csv(
+        self,
+        date: str,
+        new_dayton_cases: STR_OR_INT,
+        new_tokyo_cases: STR_OR_INT,
+    ) -> None:
         """Record number of new cases in Dayton and Tokyo to csv."""
 
         self.logger.info(f"Recording new data to CSV...")
